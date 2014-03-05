@@ -14,6 +14,7 @@
 
 const float MaxPlayerAccel = 400.0f;
 const float MaxPlayerSpeed = 200.0f;
+const float BorderCollisionDamping = 0.4f;
 
 @implementation MyScene
 {
@@ -134,8 +135,48 @@ const float MaxPlayerSpeed = 200.0f;
     float newY = _playerSprite.position.y + _playerSpeedY*dt;
     
     // 4
-    newX = MIN(_winSize.width, MAX(newX, 0));
-    newY = MIN(_winSize.height, MAX(newY, 0));
+//    newX = MIN(_winSize.width, MAX(newX, 0));
+//    newY = MIN(_winSize.height, MAX(newY, 0));
+    BOOL collidedWithVerticalBorder = NO;
+    BOOL collidedWithHorizontalBorder = NO;
+    
+    if (newX < 0.0f)
+    {
+        newX = 0.0f;
+        collidedWithVerticalBorder = YES;
+    }
+    else if (newX > _winSize.width)
+    {
+        newX = _winSize.width;
+        collidedWithVerticalBorder = YES;
+    }
+    
+    if (newY < 0.0f)
+    {
+        newY = 0.0f;
+        collidedWithHorizontalBorder = YES;
+    }
+    else if (newY > _winSize.height)
+    {
+        newY = _winSize.height;
+        collidedWithHorizontalBorder = YES;
+    }
+    
+    if (collidedWithVerticalBorder)
+    {
+        _playerAccelX = -_playerAccelX * BorderCollisionDamping;
+        _playerSpeedX = -_playerSpeedX * BorderCollisionDamping;
+        _playerAccelY = _playerAccelY * BorderCollisionDamping;
+        _playerSpeedY = _playerSpeedY * BorderCollisionDamping;
+    }
+    
+    if (collidedWithHorizontalBorder)
+    {
+        _playerAccelX = _playerAccelX * BorderCollisionDamping;
+        _playerSpeedX = _playerSpeedX * BorderCollisionDamping;
+        _playerAccelY = -_playerAccelY * BorderCollisionDamping;
+        _playerSpeedY = -_playerSpeedY * BorderCollisionDamping;
+    }
     
     _playerSprite.position = CGPointMake(newX, newY);
     
